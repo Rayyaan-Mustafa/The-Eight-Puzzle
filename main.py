@@ -13,21 +13,11 @@ def main():
     goal_state = create_goal_state(N_PUZZLE) #creates goal state board based on N_PUZZLE dimensions
 
     puzzle_mode = input("Welcome to Rayyaan's 8-Puzzle Solver. Type '1' to use a default puzzle, or '2' to create your own. (Default puzzles are all 8 puzzles)" + '\n')
+    #lets user select 1 of 4 default puzzles
     if puzzle_mode == "1":
-        select_and_init_algorithm(init_default_puzzle_mode())
-    if puzzle_mode == "2":
-        # print("Enter your puzzle, using a zero to represent the blank. Please only enter valid 8-puzzles. Enter the puzzle demilimiting the numbers with a space. RET only when finished." + '\n')
-        # puzzle_row_one = input("Enter the first row: ")
-        # puzzle_row_two = input("Enter the second row: ")
-        # puzzle_row_three = input("Enter the third row: ")
-        # puzzle_row_one = puzzle_row_one.split()
-        # puzzle_row_two = puzzle_row_two.split()
-        # puzzle_row_three = puzzle_row_three.split()
-        # for i in range(0, 3):
-        #     puzzle_row_one[i] = int(puzzle_row_one[i])
-        #     puzzle_row_two[i] = int(puzzle_row_two[i])
-        #     puzzle_row_three[i] = int(puzzle_row_three[i])
-        # user_puzzle = [puzzle_row_one, puzzle_row_two, puzzle_row_three]
+        select_and_init_algorithm(init_default_puzzle_mode()) 
+    #lets user create their own puzzle
+    elif puzzle_mode == "2":
         print("Enter numbers left to right, top to bottom. Hit ENTER after every number.")
         user_puzzle = [[0 for i in range(N_PUZZLE)] for j in range(N_PUZZLE)]
         for i in range(N_PUZZLE):
@@ -42,18 +32,28 @@ def init_default_puzzle_mode():
     selected_difficulty = input("You wish to use a default puzzle. Please enter a desired difficulty on a scale from 0 to 4." + '\n')
     if selected_difficulty == "0":
         print("Difficulty of 'Trivial' selected.")
+        print("The puzzle is:")
+        print_puzzle(trivial)
         return trivial
     if selected_difficulty == "1":
         print("Difficulty of 'Very Easy' selected.")
+        print("The puzzle is:")
+        print_puzzle(veryEasy)
         return veryEasy
     if selected_difficulty == "2":
         print("Difficulty of 'Easy' selected.")
+        print("The puzzle is:")
+        print_puzzle(easy)
         return easy
     if selected_difficulty == "3":
         print("Difficulty of 'Doable' selected.")
+        print("The puzzle is:")
+        print_puzzle(doable)
         return doable
     if selected_difficulty == "4":
         print("Difficulty of 'Oh Boy' selected.")
+        print("The puzzle is:")
+        print_puzzle(oh_boy)
         return oh_boy
     # if selected_difficulty == "5":
     #     print("Difficulty of 'Impossible' selected.")
