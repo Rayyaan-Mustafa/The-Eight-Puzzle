@@ -1,36 +1,99 @@
 from collections import deque
 
+#default eight puzzle cases
+trivial = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
+veryEasy = [[1, 2, 3], [4, 5, 6], [7, 0, 8]]
+easy = [[1, 2, 0], [4, 5, 3], [7, 8, 6]]
+doable = [[0, 1, 2], [4, 5, 3], [7, 8, 6]]
+oh_boy = [[8, 7, 1], [6, 0, 2], [5, 4, 3]]
+
+N_PUZZLE = 3 #dimensions of the puzzle. can change to accomadate different size puzzle boards
+
 def main():
-    N_PUZZLE = 3 #dimensions of the puzzle. can change to accomadate different size puzzle boards
-    goal_state = create_goal_state(N_PUZZLE)
-    loop = True
+    goal_state = create_goal_state(N_PUZZLE) #creates goal state board based on N_PUZZLE dimensions
 
-    while loop:
-        initial_state = [[0 for i in range(N_PUZZLE)] for j in range(N_PUZZLE)]
-        print("Eight Puzzle Solver")
-        print("Select 1 to use a default puzzle(solution is at depth of 4), or 2 to enter your own puzzle.(Make sure to hit ENTER after every input)")
-        puzzle_selection = input("Enter 1 or 2: ")
-        if puzzle_selection == "1":
-            initial_state = [[1,2,3],[5,0,6],[4,7,8]]#has depth of 2
-        elif puzzle_selection == "2":
-            print("Enter numbers left to right, top to bottom. Hit ENTER after every number.")
-            for i in range(N_PUZZLE):
-                for j in range(N_PUZZLE):
-                    initial_state[i][j] = input("Enter number (row {}, col {}): ".format(str(i+1), str(j+1)))
-        print("Enter 1 to solve with Uniform Cost Search.")
-        print("Enter 2 to solve with A* with the Misplaced Tile Heuristic.")
-        print("Enter 3 to solve with A* with the Manhattan Distance Heuristic.")
-        queueing_function = input("")
+    puzzle_mode = input("Welcome to Rayyaan's 8-Puzzle Solver. Type '1' to use a default puzzle, or '2' to create your own. (Default puzzles are all 8 puzzles)" + '\n')
+    if puzzle_mode == "1":
+        select_and_init_algorithm(init_default_puzzle_mode())
+    if puzzle_mode == "2":
+        # print("Enter your puzzle, using a zero to represent the blank. Please only enter valid 8-puzzles. Enter the puzzle demilimiting the numbers with a space. RET only when finished." + '\n')
+        # puzzle_row_one = input("Enter the first row: ")
+        # puzzle_row_two = input("Enter the second row: ")
+        # puzzle_row_three = input("Enter the third row: ")
+        # puzzle_row_one = puzzle_row_one.split()
+        # puzzle_row_two = puzzle_row_two.split()
+        # puzzle_row_three = puzzle_row_three.split()
+        # for i in range(0, 3):
+        #     puzzle_row_one[i] = int(puzzle_row_one[i])
+        #     puzzle_row_two[i] = int(puzzle_row_two[i])
+        #     puzzle_row_three[i] = int(puzzle_row_three[i])
+        # user_puzzle = [puzzle_row_one, puzzle_row_two, puzzle_row_three]
+        print("Enter numbers left to right, top to bottom. Hit ENTER after every number.")
+        user_puzzle = [[0 for i in range(N_PUZZLE)] for j in range(N_PUZZLE)]
+        for i in range(N_PUZZLE):
+            for j in range(N_PUZZLE):
+                user_puzzle[i][j] = input("Enter number (row {}, col {}): ".format(str(i+1), str(j+1)))
+        print("The puzzle you entered is:")
+        print_puzzle(user_puzzle)
+        select_and_init_algorithm(user_puzzle)
+    return
 
-        general_search(initial_state, queueing_function)
+def init_default_puzzle_mode(): 
+    selected_difficulty = input("You wish to use a default puzzle. Please enter a desired difficulty on a scale from 0 to 4." + '\n')
+    if selected_difficulty == "0":
+        print("Difficulty of 'Trivial' selected.")
+        return trivial
+    if selected_difficulty == "1":
+        print("Difficulty of 'Very Easy' selected.")
+        return veryEasy
+    if selected_difficulty == "2":
+        print("Difficulty of 'Easy' selected.")
+        return easy
+    if selected_difficulty == "3":
+        print("Difficulty of 'Doable' selected.")
+        return doable
+    if selected_difficulty == "4":
+        print("Difficulty of 'Oh Boy' selected.")
+        return oh_boy
+    # if selected_difficulty == "5":
+    #     print("Difficulty of 'Impossible' selected.")
+    #     return impossible
 
+def print_puzzle(puzzle):
+    for i in range(0, N_PUZZLE):
+        print(puzzle[i])
 
-        
+def select_and_init_algorithm(puzzle):
+    algorithm = input("Select algorithm. (1) for Uniform Cost Search, (2) for the Misplaced Tile Heuristic, "
+    "or (3) the Manhattan Distance Heuristic." + '\n')
+    if algorithm == "1":
+        uniform_cost_search(puzzle, 0)
+    if algorithm == "2":
+        uniform_cost_search(puzzle, 1)
+    if algorithm == "3":
+        uniform_cost_search(puzzle, 2)
 
-
-        again = input("Enter 1 to solve another puzzle. Enter 2 to exit")
-        if again == 2:
-            loop == False
+def uniform_cost_search(puzzle, heuristic):
+    starting_node = TreeNode.TreeNode(None, puzzle, 0, 0)
+    working_queue = []
+    repeated_states = dict()
+    min_heap_esque_queue.heappush(working_queue, starting_node)
+    num_nodes_expanded = 0
+    max_queue_size = 0
+    repeated_states[starting_node.board_to_tuple()] = "This is the parent board"
+    stack_to_print = [] # the board states are stored in a stack
+    while len(working_queue) > 0:
+        max_queue_size = max(len(working_queue), max_queue_size)
+        # the node from the queue being considered/checked
+        node_from_queue = min_heap_esque_queue.heappop(working_queue)
+        repeated_states[node_from_queue.board_to_tuple()] = "This can be anything"
+        if node_from_queue.solved(): # check if the current state of the board is the solution
+            while len(stack_to_print) > 0: # the stack of nodes for the traceback
+                print_puzzle(stack_to_print.pop())
+            print("Number of nodes expanded:", num_nodes_expanded)
+            print("Max queue size:", max_queue_size)
+            return node_from_queue
+        stack_to_print.append(node_from_queue.board)
 
 def goal_test(A, B):
     if A == B:
@@ -42,9 +105,9 @@ def general_search(problem, queueing_function):
     if queueing_function == 1:
         pass
     elif queueing_function == 2:
-    
+        pass
     elif queueing_function == 3:
-
+        pass
 
 
     nodes = deque()
@@ -59,17 +122,10 @@ def general_search(problem, queueing_function):
             return node
         nodes = queueing_function(nodes, expand(node, problem.operators))
 
-#general search algorithm
-# function general_search(problem, queueing function)
-#     nodes = make_queue(make_node(problem.initial_state)))
-#     loop do
-#         if empty(nodes) then return failure
-#         node = remove_front(nodes)
-#         if problem.goal_test(node.state) then return node
-#         nodes = queueing_function(nodes, expand(node, problem.operators))
-#         end
+
 
 def expand(node, ):
+    pass
 
 
 def create_goal_state(N_PUZZLE):
