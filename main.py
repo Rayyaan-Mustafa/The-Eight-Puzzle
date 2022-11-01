@@ -77,14 +77,16 @@ def select_and_init_algorithm(puzzle):
     if algorithm == "3":
         general_search(puzzle, 2)
 
-def general_search(problem, heuristic):
-    if heuristic == 1:
+def general_search(problem, queueing_function):
+    heuristic = Uniform_Heuristic
+    if queueing_function == 1:
         heuristic = Uniform_Heuristic
-        print(heuristic)
-    elif heuristic == 2:
+    elif queueing_function == 2:
         heuristic = Misplaced_Tile_Heuristic
-    elif heuristic == 3:
+    elif queueing_function == 3:
         heuristic = Manhattan_Distance_Heuristic
+    else:
+        print("Invalid queueing function was selected. Defaulting to Uniform Cost Search.")
 
     expanded_nodes_count = -1
     max_queue_size = 0
@@ -170,7 +172,7 @@ def Expand(node, repeated_states):
             children.append(n)
     return children
 
-def Uniform_Heuristic():
+def Uniform_Heuristic(puzzle, goal_state, goal_state_positions):
     return 0
 
 def Manhattan_Distance_Heuristic(puzzle, goal_state, goal_state_positions):
