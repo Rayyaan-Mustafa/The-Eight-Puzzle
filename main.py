@@ -1,4 +1,5 @@
 from collections import deque
+import copy
 
 #default eight puzzle cases
 trivial = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
@@ -11,15 +12,17 @@ N_PUZZLE = 3 #dimensions of the puzzle. can change to accomadate different size 
 
 class Node:
     def __init(self, puzzle):
-        self.puzzle = puzzle
-        self.heuristic = 0 #heuristic cost
+        self.puzzle = puzzle #2d array containg the puzzle
+        self.heuristicCost = 0 
+        self.depth = 0
  
 
 def main():
     goal_state = create_goal_state(N_PUZZLE) #creates goal state board based on N_PUZZLE dimensions
+    goal_state_positions = get_goal_state_positions(goal_state) #creates dictionary of goal state positions
 
     puzzle_mode = input("Welcome to Rayyaan's 8-Puzzle Solver. Type '1' to use a default puzzle, or '2' to create your own. (Default puzzles are all 8 puzzles)" + '\n')
-    #lets user select 1 of 4 default puzzles
+    #lets user select 1 of 5 default puzzles
     if puzzle_mode == "1":
         select_and_init_algorithm(init_default_puzzle_mode()) 
     #lets user create their own puzzle
@@ -84,6 +87,10 @@ def general_search(problem, queueing_function):
     elif queueing_function == 3:
         pass
 
+    expanded_nodes_count = -1
+    max_queue_size = 0
+    repeated_states = set()
+
     nodes = deque()
     #add initial state to deque
     nodes.append(Node(problem))
@@ -93,8 +100,12 @@ def general_search(problem, queueing_function):
             return "failure"
         node = nodes.popleft()
         if goal_test(node, goal_state):
+            print("Goal state! \n")
+            print("Solution depth was: " + str(node.depth))
+            print("Number of nodes expanded: " + str(expanded_nodes_count))
+            print("Max queue size: " + str(max_queue_size))
             return node
-        nodes = queueing_function(nodes, expand(node))
+        nodes = queueing_function(nodes, Expand(node))
 
 def goal_test(A, B):
     if A == B:
@@ -102,33 +113,66 @@ def goal_test(A, B):
     else:
         return False
 
-def expand(node, ):
-    pass
+def Expand(node, repeated_states):
+    #finding the position of the '0' tile in the puzzle
+    children = []
+    row = col = 0
+    for i in range(N_PUZZLE):
+        for j in range(N_PUZZLE):
+            if node.puzzle[i][j] == 0:
+                row = i
+                col= j
+                break
+    #move the '0' tile left
+    if col > 0:
+        temp_puzzle = copy.deepcopy(node.puzzle)
+        temp_puzzle[row][col], temp_puzzle[row][col-1] = temp_puzzle[row][col-1], temp_puzzle[row][col]
+        n = Node(temp_puzzle)
+        children.append(n)
+    #move the '0' tile right
+    if col < N_PUZZLE - 1:
+        temp_puzzle = copy.deepcopy(node.puzzle)
+        temp_puzzle[row][col], temp_puzzle[row][col+1] = temp_puzzle[row][col+1], temp_puzzle[row][col]
+        n = Node(temp_puzzle)
+        children.append(n)
+    #move the '0' tile up 
+    if row > 0:
+        temp_puzzle = copy.deepcopy(node.puzzle)
+        temp_puzzle[row][col], temp_puzzle[row-1][col] = temp_puzzle[row-1][col], temp_puzzle[row][col]
+        n = Node(temp_puzzle)
+        children.append(n)
+    #move the '0' tile down
+    if row < N_PUZZLE - 1:
+        temp_puzzle = copy.deepcopy(node.puzzle)
+        temp_puzzle[row][col], temp_puzzle[row+1][col] = temp_puzzle[row+1][col], temp_puzzle[row][col]
+        n = Node(temp_puzzle)
+        children.append(n)
+    return children
 
-def Manhattan_Distance_Heuristic(puzzle, goal_state):
+    
+    
+
+def Manhattan_Distance_Heuristic(puzzle, goal_state, goal_state_positions):
     count = 0
-    goal_state_positions = dict()
-    for i in range(0, N_PUZZLE):
-        for j in range(0, N_PUZZLE):
-            goal_state_positions[goal_state[i][j]] = (i, j)
     for i in range(0, N_PUZZLE):
         for j in range(0, N_PUZZLE):  
             if (puzzle[i][j] != goal_state[i][j]) and puzzle[i][j] != 0:
                 count += abs(goal_state_positions[puzzle[i][j]][0] - i) + abs(goal_state_positions[puzzle[i][j]][1] - j)
     return count     
 
-def Misplaced_Tile_Heuristic(puzzle, goal_state):
+def Misplaced_Tile_Heuristic(puzzle, goal_state, goal_state_positions):
     count = 0
+    for i in range(1, N_PUZZLE**2):
+        if puzzle[goal_state_positions[i][0]][goal_state_positions[i][1]] != i:
+            count += 1
+    return count
+
+def get_goal_state_positions(goal_state):
     goal_state_positions = dict()
     for i in range(0, N_PUZZLE):
         for j in range(0, N_PUZZLE):
             goal_state_positions[goal_state[i][j]] = (i, j)
-    for i in range(1, N_PUZZLE**2):
-        if puzzle[goal_state_positions[i][0]][goal_state_positions[i][1]] != i:
-            count += 1
-                
-
-    return count
+    return goal_state_positions
 
 def create_goal_state(N_PUZZLE):
     goal = [[0 for i in range(N_PUZZLE)] for j in range(N_PUZZLE)]
@@ -138,10 +182,8 @@ def create_goal_state(N_PUZZLE):
             goal[i][j] = count
             count += 1
     goal[-1][-1] = 0
-
     return goal
 
 
 if __name__ == "__main__":
     # main()
-    
