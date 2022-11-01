@@ -108,19 +108,18 @@ def general_search(problem, queueing_function):
             print("Max queue size: " + str(max_queue_size))
             return node
         children = Expand(node, repeated_states)
-        if expanded_nodes_count == 1000:
-            return "ur dumbbb"
+        # if expanded_nodes_count == 1000:
+        #     return "ur dumbbb"
         if expanded_nodes_count != 0:
             print("The best state to expand with a g(n) = " + str(node.depth) + " and h(n) = " + str(node.heuristicCost) + " is...")
             print_puzzle(node.puzzle)
         expanded_nodes_count += 1
-        for child in children:
-            child.heuristicCost = heuristic(child.puzzle, goal_state, goal_state_positions)
+        for i in range(len(children)):
+            children[i].heuristicCost = heuristic(children[i].puzzle, goal_state, goal_state_positions)
+            nodes.append(children[i])
         #queueing function
         # children = sorted(children, key=lambda x: (x.heuristicCost + x.depth, x.depth))
-        for child in children:
-            nodes.append(child)
-        nodes = sorted(nodes, key=lambda x: (x.heuristicCost + x.depth, x.depth))
+        nodes = sorted(nodes, key=lambda n: (n.heuristicCost + n.depth, n.depth))
         
 
 def goal_test(A, B):
