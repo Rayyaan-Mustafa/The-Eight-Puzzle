@@ -11,15 +11,13 @@ oh_boy = [[8, 7, 1], [6, 0, 2], [5, 4, 3]]
 N_PUZZLE = 3 #dimensions of the puzzle. can change to accomadate different size puzzle boards
 
 class Node:
-    def __init(self, puzzle):
+    def __init__(self, puzzle):
         self.puzzle = puzzle #2d array containg the puzzle
         self.heuristicCost = 0 
         self.depth = 0
  
 
 def main():
-    goal_state = create_goal_state(N_PUZZLE) #creates goal state board based on N_PUZZLE dimensions
-    goal_state_positions = get_goal_state_positions(goal_state) #creates dictionary of goal state positions
 
     puzzle_mode = input("Welcome to Rayyaan's 8-Puzzle Solver. Type '1' to use a default puzzle, or '2' to create your own. (Default puzzles are all 8 puzzles)" + '\n')
     #lets user select 1 of 5 default puzzles
@@ -79,23 +77,25 @@ def select_and_init_algorithm(puzzle):
     if algorithm == "3":
         general_search(puzzle, 2)
 
-def general_search(problem, queueing_function):
-    if queueing_function == 1:
-        pass
-    elif queueing_function == 2:
-        pass
-    elif queueing_function == 3:
-        pass
+def general_search(problem, heuristic):
+    if heuristic == 1:
+        heuristic = Uniform_Heuristic
+        print(heuristic)
+    elif heuristic == 2:
+        heuristic = Misplaced_Tile_Heuristic
+    elif heuristic == 3:
+        heuristic = Manhattan_Distance_Heuristic
 
     expanded_nodes_count = -1
     max_queue_size = 0
-    repeated_states = set()
+    repeated_states = set(tuple(t) for t in problem)
 
     nodes = deque()
     #add initial state to deque
     nodes.append(Node(problem))
 
     while True:
+        max_queue_size = max(max_queue_size, len(nodes))
         if len(nodes) == 0:
             return "failure"
         node = nodes.popleft()
@@ -105,7 +105,15 @@ def general_search(problem, queueing_function):
             print("Number of nodes expanded: " + str(expanded_nodes_count))
             print("Max queue size: " + str(max_queue_size))
             return node
-        nodes = queueing_function(nodes, Expand(node))
+        children = Expand(node, repeated_states)
+        print("The best state to expand with a g(n) = " + str(node.depth) + " and h(n) = " + str(node.heuristicCost) + " is...")
+        print_puzzle(node.puzzle)
+        for child in children:
+            child.heuristicCost = heuristic(child.puzzle, goal_state, goal_state_positions)
+        #queueing function
+        children = sorted(children, key=lambda x: (x.heuristicCost + x.depth, x.depth))
+        for child in children:
+            nodes.append(child)
 
 def goal_test(A, B):
     if A == B:
@@ -123,34 +131,47 @@ def Expand(node, repeated_states):
                 row = i
                 col= j
                 break
+    #only expands the node if it is possible (within bounds of the puzzle) + if the node is not in repeated_states)
     #move the '0' tile left
     if col > 0:
         temp_puzzle = copy.deepcopy(node.puzzle)
         temp_puzzle[row][col], temp_puzzle[row][col-1] = temp_puzzle[row][col-1], temp_puzzle[row][col]
-        n = Node(temp_puzzle)
-        children.append(n)
+        if (tuple(t) for t in temp_puzzle) not in repeated_states:
+            repeated_states.add(tuple(t) for t in temp_puzzle)
+            n = Node(temp_puzzle)
+            n.depth = node.depth + 1
+            children.append(n)
     #move the '0' tile right
     if col < N_PUZZLE - 1:
         temp_puzzle = copy.deepcopy(node.puzzle)
         temp_puzzle[row][col], temp_puzzle[row][col+1] = temp_puzzle[row][col+1], temp_puzzle[row][col]
-        n = Node(temp_puzzle)
-        children.append(n)
+        if (tuple(t) for t in temp_puzzle) not in repeated_states:
+            repeated_states.add(tuple(t) for t in temp_puzzle)
+            n = Node(temp_puzzle)
+            n.depth = node.depth + 1
+            children.append(n)
     #move the '0' tile up 
     if row > 0:
         temp_puzzle = copy.deepcopy(node.puzzle)
         temp_puzzle[row][col], temp_puzzle[row-1][col] = temp_puzzle[row-1][col], temp_puzzle[row][col]
-        n = Node(temp_puzzle)
-        children.append(n)
+        if (tuple(t) for t in temp_puzzle) not in repeated_states:
+            repeated_states.add(tuple(t) for t in temp_puzzle)
+            n = Node(temp_puzzle)
+            n.depth = node.depth + 1
+            children.append(n)
     #move the '0' tile down
     if row < N_PUZZLE - 1:
         temp_puzzle = copy.deepcopy(node.puzzle)
         temp_puzzle[row][col], temp_puzzle[row+1][col] = temp_puzzle[row+1][col], temp_puzzle[row][col]
-        n = Node(temp_puzzle)
-        children.append(n)
+        if (tuple(t) for t in temp_puzzle) not in repeated_states:
+            repeated_states.add(tuple(t) for t in temp_puzzle)
+            n = Node(temp_puzzle)
+            n.depth = node.depth + 1
+            children.append(n)
     return children
 
-    
-    
+def Uniform_Heuristic():
+    return 0
 
 def Manhattan_Distance_Heuristic(puzzle, goal_state, goal_state_positions):
     count = 0
@@ -184,6 +205,7 @@ def create_goal_state(N_PUZZLE):
     goal[-1][-1] = 0
     return goal
 
-
 if __name__ == "__main__":
-    # main()
+    goal_state = create_goal_state(N_PUZZLE) #creates goal state board based on N_PUZZLE dimensions
+    goal_state_positions = get_goal_state_positions(goal_state) #creates dictionary of goal state positions
+    main()
