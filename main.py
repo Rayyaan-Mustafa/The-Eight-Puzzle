@@ -9,6 +9,12 @@ oh_boy = [[8, 7, 1], [6, 0, 2], [5, 4, 3]]
 
 N_PUZZLE = 3 #dimensions of the puzzle. can change to accomadate different size puzzle boards
 
+class Node:
+    def __init(self, puzzle):
+        self.puzzle = puzzle
+        self.heuristic = 0 #heuristic cost
+ 
+
 def main():
     goal_state = create_goal_state(N_PUZZLE) #creates goal state board based on N_PUZZLE dimensions
 
@@ -55,9 +61,6 @@ def init_default_puzzle_mode():
         print("The puzzle is:")
         print_puzzle(oh_boy)
         return oh_boy
-    # if selected_difficulty == "5":
-    #     print("Difficulty of 'Impossible' selected.")
-    #     return impossible
 
 def print_puzzle(puzzle):
     for i in range(0, N_PUZZLE):
@@ -67,39 +70,11 @@ def select_and_init_algorithm(puzzle):
     algorithm = input("Select algorithm. (1) for Uniform Cost Search, (2) for the Misplaced Tile Heuristic, "
     "or (3) the Manhattan Distance Heuristic." + '\n')
     if algorithm == "1":
-        uniform_cost_search(puzzle, 0)
+        general_search(puzzle, 0)
     if algorithm == "2":
-        uniform_cost_search(puzzle, 1)
+        general_search(puzzle, 1)
     if algorithm == "3":
-        uniform_cost_search(puzzle, 2)
-
-def uniform_cost_search(puzzle, heuristic):
-    starting_node = TreeNode.TreeNode(None, puzzle, 0, 0)
-    working_queue = []
-    repeated_states = dict()
-    min_heap_esque_queue.heappush(working_queue, starting_node)
-    num_nodes_expanded = 0
-    max_queue_size = 0
-    repeated_states[starting_node.board_to_tuple()] = "This is the parent board"
-    stack_to_print = [] # the board states are stored in a stack
-    while len(working_queue) > 0:
-        max_queue_size = max(len(working_queue), max_queue_size)
-        # the node from the queue being considered/checked
-        node_from_queue = min_heap_esque_queue.heappop(working_queue)
-        repeated_states[node_from_queue.board_to_tuple()] = "This can be anything"
-        if node_from_queue.solved(): # check if the current state of the board is the solution
-            while len(stack_to_print) > 0: # the stack of nodes for the traceback
-                print_puzzle(stack_to_print.pop())
-            print("Number of nodes expanded:", num_nodes_expanded)
-            print("Max queue size:", max_queue_size)
-            return node_from_queue
-        stack_to_print.append(node_from_queue.board)
-
-def goal_test(A, B):
-    if A == B:
-        return True
-    else:
-        return False
+        general_search(puzzle, 2)
 
 def general_search(problem, queueing_function):
     if queueing_function == 1:
@@ -109,10 +84,9 @@ def general_search(problem, queueing_function):
     elif queueing_function == 3:
         pass
 
-
     nodes = deque()
     #add initial state to deque
-    nodes.append(initial_state)
+    nodes.append(Node(problem))
 
     while True:
         if len(nodes) == 0:
@@ -120,13 +94,41 @@ def general_search(problem, queueing_function):
         node = nodes.popleft()
         if goal_test(node, goal_state):
             return node
-        nodes = queueing_function(nodes, expand(node, problem.operators))
+        nodes = queueing_function(nodes, expand(node))
 
-
+def goal_test(A, B):
+    if A == B:
+        return True
+    else:
+        return False
 
 def expand(node, ):
     pass
 
+def Manhattan_Distance_Heuristic(puzzle, goal_state):
+    count = 0
+    goal_state_positions = dict()
+    for i in range(0, N_PUZZLE):
+        for j in range(0, N_PUZZLE):
+            goal_state_positions[goal_state[i][j]] = (i, j)
+    for i in range(0, N_PUZZLE):
+        for j in range(0, N_PUZZLE):  
+            if (puzzle[i][j] != goal_state[i][j]) and puzzle[i][j] != 0:
+                count += abs(goal_state_positions[puzzle[i][j]][0] - i) + abs(goal_state_positions[puzzle[i][j]][1] - j)
+    return count     
+
+def Misplaced_Tile_Heuristic(puzzle, goal_state):
+    count = 0
+    goal_state_positions = dict()
+    for i in range(0, N_PUZZLE):
+        for j in range(0, N_PUZZLE):
+            goal_state_positions[goal_state[i][j]] = (i, j)
+    for i in range(1, N_PUZZLE**2):
+        if puzzle[goal_state_positions[i][0]][goal_state_positions[i][1]] != i:
+            count += 1
+                
+
+    return count
 
 def create_goal_state(N_PUZZLE):
     goal = [[0 for i in range(N_PUZZLE)] for j in range(N_PUZZLE)]
@@ -141,5 +143,5 @@ def create_goal_state(N_PUZZLE):
 
 
 if __name__ == "__main__":
-    main()
-
+    # main()
+    
