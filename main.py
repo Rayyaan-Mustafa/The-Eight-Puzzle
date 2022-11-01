@@ -1,4 +1,4 @@
-from collections import deque
+# from collections import deque
 import copy
 
 #default eight puzzle cases
@@ -29,7 +29,7 @@ def main():
         user_puzzle = [[0 for i in range(N_PUZZLE)] for j in range(N_PUZZLE)]
         for i in range(N_PUZZLE):
             for j in range(N_PUZZLE):
-                user_puzzle[i][j] = input("Enter number (row {}, col {}): ".format(str(i+1), str(j+1)))
+                user_puzzle[i][j] = int(input("Enter number (row {}, col {}): ".format(str(i+1), str(j+1))))
         print("The puzzle you entered is:")
         print_puzzle(user_puzzle)
         select_and_init_algorithm(user_puzzle)
@@ -71,11 +71,11 @@ def select_and_init_algorithm(puzzle):
     algorithm = input("Select algorithm. (1) for Uniform Cost Search, (2) for the Misplaced Tile Heuristic, "
     "or (3) the Manhattan Distance Heuristic." + '\n')
     if algorithm == "1":
-        general_search(puzzle, 0)
-    if algorithm == "2":
         general_search(puzzle, 1)
-    if algorithm == "3":
+    if algorithm == "2":
         general_search(puzzle, 2)
+    if algorithm == "3":
+        general_search(puzzle, 3)
 
 def general_search(problem, queueing_function):
     heuristic = Uniform_Heuristic
@@ -88,11 +88,11 @@ def general_search(problem, queueing_function):
     else:
         print("Invalid queueing function was selected. Defaulting to Uniform Cost Search.")
 
-    expanded_nodes_count = -1
+    expanded_nodes_count = 0
     max_queue_size = 0
     repeated_states = set(tuple(t) for t in problem)
 
-    nodes = deque()
+    nodes = []
     #add initial state to deque
     nodes.append(Node(problem))
 
@@ -100,22 +100,28 @@ def general_search(problem, queueing_function):
         max_queue_size = max(max_queue_size, len(nodes))
         if len(nodes) == 0:
             return "failure"
-        node = nodes.popleft()
-        if goal_test(node, goal_state):
+        node = nodes.pop(0)
+        if goal_test(node.puzzle, goal_state):
             print("Goal state! \n")
             print("Solution depth was: " + str(node.depth))
             print("Number of nodes expanded: " + str(expanded_nodes_count))
             print("Max queue size: " + str(max_queue_size))
             return node
         children = Expand(node, repeated_states)
-        print("The best state to expand with a g(n) = " + str(node.depth) + " and h(n) = " + str(node.heuristicCost) + " is...")
-        print_puzzle(node.puzzle)
+        if expanded_nodes_count == 1000:
+            return "ur dumbbb"
+        if expanded_nodes_count != 0:
+            print("The best state to expand with a g(n) = " + str(node.depth) + " and h(n) = " + str(node.heuristicCost) + " is...")
+            print_puzzle(node.puzzle)
+        expanded_nodes_count += 1
         for child in children:
             child.heuristicCost = heuristic(child.puzzle, goal_state, goal_state_positions)
         #queueing function
-        children = sorted(children, key=lambda x: (x.heuristicCost + x.depth, x.depth))
+        # children = sorted(children, key=lambda x: (x.heuristicCost + x.depth, x.depth))
         for child in children:
             nodes.append(child)
+        nodes = sorted(nodes, key=lambda x: (x.heuristicCost + x.depth, x.depth))
+        
 
 def goal_test(A, B):
     if A == B:
@@ -126,13 +132,19 @@ def goal_test(A, B):
 def Expand(node, repeated_states):
     #finding the position of the '0' tile in the puzzle
     children = []
-    row = col = 0
+    row = 0
+    col = 0
+    found = False
     for i in range(N_PUZZLE):
         for j in range(N_PUZZLE):
             if node.puzzle[i][j] == 0:
                 row = i
-                col= j
+                col = j
+                found = True
                 break
+        if found:
+            break
+
     #only expands the node if it is possible (within bounds of the puzzle) + if the node is not in repeated_states)
     #move the '0' tile left
     if col > 0:
