@@ -91,7 +91,7 @@ def general_search(problem, queueing_function):
     expanded_nodes_count = 0
     max_queue_size = 0
     # repeated_states = set(tuple(t) for t in problem)
-    repeated_states = []
+    repeated_states = set()
 
     nodes = []
     #add initial state to deque
@@ -151,9 +151,9 @@ def Expand(node, repeated_states):
         temp_puzzle = copy.deepcopy(node.puzzle)
         temp_puzzle[row][col], temp_puzzle[row][col-1] = temp_puzzle[row][col-1], temp_puzzle[row][col]
         # if (tuple(t) for t in temp_puzzle) not in repeated_states:
-        if (temp_puzzle) not in repeated_states:
+        if (tuple(map(tuple, temp_puzzle))) not in repeated_states:
             # repeated_states.add(tuple(t) for t in temp_puzzle)
-            repeated_states.append(temp_puzzle)
+            repeated_states.add(tuple(map(tuple, temp_puzzle)))
             n = Node(temp_puzzle)
             n.depth = node.depth + 1
             children.append(n)
@@ -162,9 +162,9 @@ def Expand(node, repeated_states):
         temp_puzzle = copy.deepcopy(node.puzzle)
         temp_puzzle[row][col], temp_puzzle[row][col+1] = temp_puzzle[row][col+1], temp_puzzle[row][col]
         # if (tuple(t) for t in temp_puzzle) not in repeated_states:
-        if (temp_puzzle) not in repeated_states:
+        if (tuple(map(tuple, temp_puzzle))) not in repeated_states:
             # repeated_states.add(tuple(t) for t in temp_puzzle)
-            repeated_states.append(temp_puzzle)
+            repeated_states.add(tuple(map(tuple, temp_puzzle)))
             n = Node(temp_puzzle)
             n.depth = node.depth + 1
             children.append(n)
@@ -173,9 +173,9 @@ def Expand(node, repeated_states):
         temp_puzzle = copy.deepcopy(node.puzzle)
         temp_puzzle[row][col], temp_puzzle[row-1][col] = temp_puzzle[row-1][col], temp_puzzle[row][col]
         # if (tuple(t) for t in temp_puzzle) not in repeated_states:
-        if (temp_puzzle) not in repeated_states:
+        if (tuple(map(tuple, temp_puzzle))) not in repeated_states:
             # repeated_states.add(tuple(t) for t in temp_puzzle)
-            repeated_states.append(temp_puzzle)
+            repeated_states.add(tuple(map(tuple, temp_puzzle)))
             n = Node(temp_puzzle)
             n.depth = node.depth + 1
             children.append(n)
@@ -184,9 +184,9 @@ def Expand(node, repeated_states):
         temp_puzzle = copy.deepcopy(node.puzzle)
         temp_puzzle[row][col], temp_puzzle[row+1][col] = temp_puzzle[row+1][col], temp_puzzle[row][col]
         # if (tuple(t) for t in temp_puzzle) not in repeated_states:
-        if (temp_puzzle) not in repeated_states:
+        if (tuple(map(tuple, temp_puzzle))) not in repeated_states:
             # repeated_states.add(tuple(t) for t in temp_puzzle)
-            repeated_states.append(temp_puzzle)
+            repeated_states.add(tuple(map(tuple, temp_puzzle)))
             n = Node(temp_puzzle)
             n.depth = node.depth + 1
             children.append(n)
