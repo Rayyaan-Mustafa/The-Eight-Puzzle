@@ -1,4 +1,5 @@
 import copy
+import time
 
 #default eight puzzle cases
 trivial = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
@@ -80,6 +81,7 @@ def select_and_init_algorithm(puzzle):
 
 def general_search(problem, queueing_function):
     """General search function. Takes user heuristic choice and calls appropriate heuristic function in search function."""
+    start_time = time.time()
     heuristic = Uniform_Heuristic
     if queueing_function == 1:
         heuristic = Uniform_Heuristic
@@ -107,7 +109,10 @@ def general_search(problem, queueing_function):
             print("Solution depth was: " + str(node.depth))
             print("Number of nodes expanded: " + str(expanded_nodes_count))
             print("Max queue size: " + str(max_queue_size))
+            print()
+            print("Time taken: " + str(time.time() - start_time))
             return node
+            # return ["Goal state! \n", "Solution depth was: " + str(node.depth), "Number of nodes expanded: " + str(expanded_nodes_count), "Max queue size: " + str(max_queue_size), "Time taken: " + str(time.time() - start_time)]
         children = Expand(node, repeated_states)
 
         if expanded_nodes_count != 0:
@@ -227,4 +232,33 @@ def create_goal_state(N_PUZZLE):
 if __name__ == "__main__":
     goal_state = create_goal_state(N_PUZZLE) #creates goal state board based on N_PUZZLE dimensions
     goal_state_positions = get_goal_state_positions(goal_state) #creates dictionary of goal state positions
+
+    ####testing (uncomment line 115, and comment out line 114 to test)
+
+    # results = {}
+    # depth0 = [[1,2,3],[4,5,6],[7,8,0]]
+    # depth2 = [[1,2,3],[4,5,6],[0,7,8]]
+    # depth4 = [[1,2,3],[5,0,6],[4,7,8]]
+    # depth8 = [[1,3,6],[5,0,2],[4,7,8]]
+    # depth12 = [[1,3,6],[5,0,7],[4,8,2]]
+    # depth16 = [[1,6,7],[5,0,3],[4,8,2]]
+    # depth20 = [[7,1,2],[4,8,5],[6,3,0]]
+    # depth24 = [[0,7,2],[4,6,1],[3,5,8]]
+    
+    # results[0] = general_search(depth0,1)
+    # results[2] = general_search(depth2,1)
+    # results[4] = general_search(depth4,1)
+    # results[8] = general_search(depth8,1)
+    # results[12] = general_search(depth12,1)
+    # results[16] = general_search(depth16,1)
+    # results[20] = general_search(depth20,1)
+    # results[24] = general_search(depth24,1)
+
+
+    # for k,v in results.items():
+    #     print("depth: {}".format(k))
+    #     print(v)
+
+    ####testing
+
     main()
